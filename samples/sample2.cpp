@@ -2,6 +2,11 @@
 #include <iostream>
 #define PCRE2_STATIC
 #include <jpcre2.hpp>
+#include <codecvt> 
+#include <string>
+#include <clocale>
+#include <cuchar>
+#include <climits>
 typedef jpcre2::select<char32_t> jpu;
 using namespace std;
 
@@ -29,8 +34,18 @@ int main() {
                        .setMatchEndOffsetVector(&vec_eoff)
                        .match();
 
-    char32_t *testStr = U"123";
+     std::mbstate_t state{};
+    char out[MB_LEN_MAX]{};
+    std::u32string testStr = U"Ò»¶þÈý";
     cout << "size:  " << testStr.size() << endl;
+    for (char32_t c : testStr) {
+        std::size_t rc = std::c32rtomb(out, c, &state);
+        std::cout << c << " converted to [ ";
+        if (rc != (std::size_t)-1)
+            for (unsigned char c8 : std::string{out, rc})
+                std::cout << +c8 << ' ';
+        std::cout << "]\n";
+    }
     doc.save();
 
     return 0;
