@@ -57,6 +57,9 @@ class Paragraph {
   public:
     Paragraph();
     Paragraph(pugi::xml_node, pugi::xml_node);
+    std::string getFont(pugi::xml_node fontNode);
+    std::string getText(pugi::xml_node Node);
+    void merge();
     void set_parent(pugi::xml_node);
     void set_current(pugi::xml_node);
 

@@ -36,3 +36,7 @@ build/*
 
 # vim swap files
 **/*.swp
+
+./vs/DuckX/v17
+/.vs
+/out/build

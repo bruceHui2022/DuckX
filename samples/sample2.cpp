@@ -3,12 +3,15 @@
 using namespace std;
 
 int main() {
-    duckx::Document doc("my_test.docx");
+    
+    duckx::Document doc("from.docx");
     doc.open();
 
-    duckx::Paragraph p =
-        doc.paragraphs().insert_paragraph_after("You can insert text in ");
-    
+    duckx::Paragraph p =  doc.paragraphs();
+    for (; p.has_next(); p.next()) {
+        p.merge();
+     }
+
     doc.save();
 
     return 0;
