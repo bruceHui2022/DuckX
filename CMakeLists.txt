@@ -17,12 +17,16 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/duckx.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/constants.hpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/duckxiterator.hpp")
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/duckxiterator.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/pcre2.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/jpcre2.hpp"
+            )
 set(SOURCES src/duckx.cpp)
 
 set(THIRD_PARTY_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/pugixml/pugixml.hpp"
                         "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/pugixml/pugiconfig.hpp"
-                        "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/zip/zip.h")
+                        "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/zip/zip.h"
+                        )
 set(THIRD_PARTY_SRC "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/zip/zip.c")
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -32,7 +36,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include"
 if(BUILD_SHARED_LIBS)
     add_library(duckx SHARED ${SOURCES} ${THIRD_PARTY_SRC})
 else()
-    add_library(duckx STATIC ${SOURCES} ${THIRD_PARTY_SRC})
+    add_library(duckx STATIC ${SOURCES} ${THIRD_PARTY_SRC} "include/pcre2.h")
 endif()
 
 add_library(duckx::duckx ALIAS duckx)
@@ -43,16 +47,20 @@ target_include_directories(duckx PUBLIC
 )
 
 mark_as_advanced(CLEAR CMAKE_INSTALL_LIBDIR CMAKE_INSTALL_INCLUDEDIR)
-
+link_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 if (BUILD_SAMPLES)
 	# Sample executable
 	set(SAMPLE1_SOURCES samples/sample1.cpp)
 	add_executable(duckx_sample1 ${SAMPLE1_SOURCES})
-	target_link_libraries(duckx_sample1 duckx)
+	target_link_libraries(duckx_sample1 pcre232static)
+    target_link_libraries(duckx_sample1 duckx)
+
 
 	set(SAMPLE2_SOURCES samples/sample2.cpp)
 	add_executable(duckx_sample2 ${SAMPLE2_SOURCES})
-	target_link_libraries(duckx_sample2 duckx)
+	target_link_libraries(duckx_sample2 pcre232static)
+    target_link_libraries(duckx_sample2 duckx)
+
         
         file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/samples/my_test.docx
             DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -74,4 +82,5 @@ install(FILES ${HEADERS} ${THIRD_PARTY_HEADERS} DESTINATION include/duckx)
 #	enable_testing()
 #	add_subdirectory(test)
 #endif()
+
 

@@ -195,9 +195,6 @@ void duckx::Paragraph::merge() {
     }
     pugi::xml_node currentNodewt = currentNodewr.child("w:t");
     bool setValueBool = currentNodewt.text().set(textStr.c_str());
-    std::cout  << std::string(currentNodewr.child("w:t").text().get()) << std::endl;
-    std::cout << "****************************"
-              << std::endl;
 }
 
 void duckx::Paragraph::set_parent(pugi::xml_node node) {
