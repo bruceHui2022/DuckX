@@ -7,7 +7,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 option(BUILD_SHARED_LIBS "Build shared instead of static library" OFF)
-option(BUILD_SAMPLES "Build provided samples" OFF)
+option(BUILD_SAMPLES "Build provided samples" ON)
 
 # Fix issues when building with clang 12, next version of clang
 # else we might encounter errors making the library 
@@ -70,8 +70,8 @@ install(EXPORT duckxConfig NAMESPACE duckx:: DESTINATION ${CMAKE_INSTALL_LIBDIR}
 install(FILES ${HEADERS} ${THIRD_PARTY_HEADERS} DESTINATION include/duckx)
 
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
-	enable_testing()
-	add_subdirectory(test)
-endif()
+#if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+#	enable_testing()
+#	add_subdirectory(test)
+#endif()
 

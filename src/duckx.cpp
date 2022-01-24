@@ -1,5 +1,6 @@
+#include<Windows.h>
 #include "duckx.hpp"
-
+#include <iostream>
 #include <cctype>
 
 // Hack on pugixml
@@ -141,6 +142,62 @@ duckx::Paragraph::Paragraph() {}
 duckx::Paragraph::Paragraph(pugi::xml_node parent, pugi::xml_node current) {
     this->set_parent(parent);
     this->set_current(current);
+}
+
+char *Utf8ToGBK(const char *strUtf8) {
+    int len = MultiByteToWideChar(CP_UTF8, 0, (LPCTSTR)strUtf8, -1, NULL, 0);
+    unsigned short *wszGBK = new unsigned short[len + 1];
+    memset(wszGBK, 0, len * 2 + 2);
+    MultiByteToWideChar(CP_UTF8, 0, (LPCTSTR)strUtf8, -1, (LPWSTR)wszGBK, len);
+    len = WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)wszGBK, -1, NULL, 0, NULL,
+                              NULL);
+    char *szGBK = new char[len + 1];
+    memset(szGBK, 0, len + 1);
+    WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)wszGBK, -1, (LPSTR)szGBK, len, NULL,
+                        NULL);
+    return szGBK;
+}
+
+std::string duckx::Paragraph::getFont(pugi::xml_node Node) {
+    pugi::xml_node fontNode = Node.child("w:rPr").child("w:rFonts");
+    std::string fontStr = fontNode.attribute("w:eastAsia").value();
+    return std::string(Utf8ToGBK(fontStr.c_str()));
+}
+
+std::string duckx::Paragraph::getText(pugi::xml_node Node) {
+    pugi::xml_node currentNode = Node.child("w:t");
+    return std::string(currentNode.text().get());
+}
+
+void duckx::Paragraph::merge() {
+   
+    pugi::xml_node currentNodewr = this->current.child("w:r");
+    std::string textStr = getText(currentNodewr);
+    std::string fontStr = getFont(currentNodewr);
+    pugi::xml_node nextNodewr = currentNodewr.next_sibling();
+    pugi::xml_node nodetemp;
+    while (nextNodewr && strcmp(nextNodewr.name(),"w:r")) {
+        nodetemp = nextNodewr.next_sibling();
+        this->current.remove_child(nextNodewr);
+        nextNodewr = nodetemp;
+    }
+    
+    while (nextNodewr) {
+        textStr.append(getText(nextNodewr));
+        this->current.remove_child(currentNodewr);
+        currentNodewr = nextNodewr;
+        nextNodewr = currentNodewr.next_sibling();
+        while (nextNodewr &&strcmp( nextNodewr.name() , "w:r")) {
+            nodetemp = nextNodewr.next_sibling();
+            this->current.remove_child(nextNodewr);
+            nextNodewr = nodetemp;
+        }
+    }
+    pugi::xml_node currentNodewt = currentNodewr.child("w:t");
+    bool setValueBool = currentNodewt.text().set(textStr.c_str());
+    std::cout  << std::string(currentNodewr.child("w:t").text().get()) << std::endl;
+    std::cout << "****************************"
+              << std::endl;
 }
 
 void duckx::Paragraph::set_parent(pugi::xml_node node) {
