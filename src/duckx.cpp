@@ -166,7 +166,7 @@ std::string duckx::Paragraph::getFont(pugi::xml_node Node) {
 
 std::string duckx::Paragraph::getText(pugi::xml_node Node) {
     pugi::xml_node currentNode = Node.child("w:t");
-    return std::string(Utf8ToGBK(currentNode.text().get()));
+    return std::string(currentNode.text().get());
 }
 
 void duckx::Paragraph::merge() {
@@ -182,7 +182,7 @@ void duckx::Paragraph::merge() {
         nextNodewr = nodetemp;
     }
     
-    while (nextNodewr && (fontStr == getFont(nextNodewr))) {
+    while (nextNodewr) {
         textStr.append(getText(nextNodewr));
         this->current.remove_child(currentNodewr);
         currentNodewr = nextNodewr;
@@ -192,7 +192,6 @@ void duckx::Paragraph::merge() {
             this->current.remove_child(nextNodewr);
             nextNodewr = nodetemp;
         }
-        fontStr = getFont(currentNodewr);
     }
     pugi::xml_node currentNodewt = currentNodewr.child("w:t");
     bool setValueBool = currentNodewt.text().set(textStr.c_str());
