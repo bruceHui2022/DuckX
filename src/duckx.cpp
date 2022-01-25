@@ -1,7 +1,10 @@
-#include<Windows.h>
 #include "duckx.hpp"
-#include <iostream>
+#include <Windows.h>
 #include <cctype>
+#include <iostream>
+#include <codecvt>
+#include <vector>
+
 
 // Hack on pugixml
 // We need to write xml to std string (or char *)
@@ -144,7 +147,7 @@ duckx::Paragraph::Paragraph(pugi::xml_node parent, pugi::xml_node current) {
     this->set_current(current);
 }
 
-char *Utf8ToGBK(const char *strUtf8) {
+char *duckx::Utf8ToGBK(const char *strUtf8) {
     int len = MultiByteToWideChar(CP_UTF8, 0, (LPCTSTR)strUtf8, -1, NULL, 0);
     unsigned short *wszGBK = new unsigned short[len + 1];
     memset(wszGBK, 0, len * 2 + 2);
@@ -170,24 +173,24 @@ std::string duckx::Paragraph::getText(pugi::xml_node Node) {
 }
 
 void duckx::Paragraph::merge() {
-   
+
     pugi::xml_node currentNodewr = this->current.child("w:r");
     std::string textStr = getText(currentNodewr);
     std::string fontStr = getFont(currentNodewr);
     pugi::xml_node nextNodewr = currentNodewr.next_sibling();
     pugi::xml_node nodetemp;
-    while (nextNodewr && strcmp(nextNodewr.name(),"w:r")) {
+    while (nextNodewr && strcmp(nextNodewr.name(), "w:r")) {
         nodetemp = nextNodewr.next_sibling();
         this->current.remove_child(nextNodewr);
         nextNodewr = nodetemp;
     }
-    
+
     while (nextNodewr) {
         textStr.append(getText(nextNodewr));
         this->current.remove_child(currentNodewr);
         currentNodewr = nextNodewr;
         nextNodewr = currentNodewr.next_sibling();
-        while (nextNodewr &&strcmp( nextNodewr.name() , "w:r")) {
+        while (nextNodewr && strcmp(nextNodewr.name(), "w:r")) {
             nodetemp = nextNodewr.next_sibling();
             this->current.remove_child(nextNodewr);
             nextNodewr = nodetemp;
@@ -195,8 +198,40 @@ void duckx::Paragraph::merge() {
     }
     pugi::xml_node currentNodewt = currentNodewr.child("w:t");
     bool setValueBool = currentNodewt.text().set(textStr.c_str());
+    std::cout << Utf8ToGBK(textStr.c_str()) << "\n" << std::endl;
+}
+std::string duckx::to_utf8(std::u32string str32) {
+    return std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t>{}
+        .to_bytes(str32);
 }
 
+std::u32string duckx::to_utf32(std::string str) {
+    return std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t>{}
+        .from_bytes(str);
+}
+
+void duckx::printU32String(std::u32string u32Str) {
+    std::cout << Utf8ToGBK(to_utf8(u32Str).c_str()) << std::endl;
+}
+
+std::vector<std::vector<std::u32string>> duckx::Paragraph::regexSearch(std::u32string regexU32String) {
+    jpu::Regex rew;
+    rew.setPattern(regexU32String).compile();
+
+    jpu::VecNum vec_num32;
+    jpcre2::VecOff vec_eoff;
+
+    std::string targetString = getText(this->current.child("w:r"));
+
+    jpu::RegexMatch rmw;
+    size_t count = rmw.setRegexObject(&rew)
+                       .setSubject(to_utf32(targetString))
+                       .setModifier("g")
+                       .setNumberedSubstringVector(&vec_num32)
+                       .setMatchEndOffsetVector(&vec_eoff)
+                       .match();
+    return vec_num32;
+}
 void duckx::Paragraph::set_parent(pugi::xml_node node) {
     this->parent = node;
     this->current = this->parent.child("w:p");
