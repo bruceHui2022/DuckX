@@ -14,28 +14,16 @@ int main() {
     doc.open();
     docTo.open();
 
-    
-    duckx::Paragraph pTo = docTo.paragraphs();
-    for (; pTo.has_next(); pTo.next()) {
-        pTo.merge();
-        vector<vector<u32string>> regexMatchResult = pTo.regexSearch(U"第一段");
-        if (regexMatchResult.size() != 0) {
-            duckx::Paragraph pFrom = doc.paragraphs();
-            string regexResult = "";
-            for (; pFrom.has_next(); pFrom.next()) {
-                vector<vector<u32string>> regexMatchResultFrom =
-                    pFrom.regexSearch(U"[^。]*[工作][^。]*[。]");
-                vector<u32string> vectorU32string =
-                    duckx::reshapeVvToV(regexMatchResultFrom);
-                for (auto i : vectorU32string) {
-                    regexResult.append(duckx::to_utf8(i));
-                }
-            }
-            pTo.next().runs().set_text(regexResult);
-            // cout << trs << endl; //.runs().set_text(regexResult);
-        }
-    }
+    duckx::searchInFromdoocxAndPasteInTodocx(
+        doc, docTo, u32string(U"第一段"), u32string(U"[^。，]*工作[^。，]*[。，]"));
 
+    duckx::searchInFromdoocxAndPasteInTodocx(
+        doc, docTo, u32string(U"第二段"),
+        u32string(U"[^。，]*开发[^。，]*[。，]"));
+
+    duckx::searchInFromdoocxAndPasteInTodocx(
+        doc, docTo, u32string(U"第三段"),
+        u32string(U"[^。，]*经济[^。，]*[。，]"));
     cout << "\n" << endl;
 
     doc.save();

@@ -171,6 +171,11 @@ std::u32string to_utf32(std::string str);
 void printU32String(std::u32string u32Str);
 std::vector<std::u32string>
 reshapeVvToV(std::vector<std::vector<std::u32string>> Vv);
+void searchInFromdoocxAndPasteInTodocx(duckx::Document &docFrom,
+                                       duckx::Document &docTo,
+                                       std::u32string regexSearchOfTodoc,
+                                       std::u32string regexSearchOfFromdoc);
+
 } // namespace duckx
 
 #endif

@@ -1,10 +1,11 @@
 #include "duckx.hpp"
 #include <Windows.h>
 #include <cctype>
-#include <iostream>
 #include <codecvt>
+#include <iostream>
 #include <vector>
 
+using namespace std;
 
 // Hack on pugixml
 // We need to write xml to std string (or char *)
@@ -198,7 +199,7 @@ void duckx::Paragraph::merge() {
     }
     pugi::xml_node currentNodewt = currentNodewr.child("w:t");
     bool setValueBool = currentNodewt.text().set(textStr.c_str());
-    std::cout << Utf8ToGBK(textStr.c_str()) << "\n" << std::endl;
+    //std::cout << Utf8ToGBK(textStr.c_str()) << "\n" << std::endl;
 }
 std::string duckx::to_utf8(std::u32string str32) {
     return std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t>{}
@@ -214,7 +215,8 @@ void duckx::printU32String(std::u32string u32Str) {
     std::cout << Utf8ToGBK(to_utf8(u32Str).c_str()) << std::endl;
 }
 
-std::vector<std::vector<std::u32string>> duckx::Paragraph::regexSearch(std::u32string regexU32String) {
+std::vector<std::vector<std::u32string>>
+duckx::Paragraph::regexSearch(std::u32string regexU32String) {
     jpu::Regex rew;
     rew.setPattern(regexU32String).compile();
 
@@ -233,9 +235,10 @@ std::vector<std::vector<std::u32string>> duckx::Paragraph::regexSearch(std::u32s
     return vec_num32;
 }
 
-std::vector<std::u32string> duckx::reshapeVvToV(std::vector<std::vector<std::u32string>> Vv) {
+std::vector<std::u32string>
+duckx::reshapeVvToV(std::vector<std::vector<std::u32string>> Vv) {
     std::vector<std::u32string> u32VectorStr;
-    for (auto  i :Vv) {
+    for (auto i : Vv) {
         for (auto j : i) {
             u32VectorStr.push_back(j);
         }
@@ -444,4 +447,32 @@ duckx::Paragraph &duckx::Document::paragraphs() {
 duckx::Table &duckx::Document::tables() {
     this->table.set_parent(document.child("w:document").child("w:body"));
     return this->table;
+}
+
+void duckx::searchInFromdoocxAndPasteInTodocx(duckx::Document &docFrom,
+                                              duckx::Document &docTo,
+                                              u32string regexSearchOfTodoc,
+                                              u32string regexSearchOfFromdoc) {
+    duckx::Paragraph pTo = docTo.paragraphs();
+    for (; pTo.has_next(); pTo.next()) {
+        pTo.merge();
+        vector<vector<u32string>> regexMatchResult =
+            pTo.regexSearch(regexSearchOfTodoc);
+        if (regexMatchResult.size() != 0) {
+            duckx::Paragraph pFrom = docFrom.paragraphs();
+            string regexResult = "";
+            for (; pFrom.has_next(); pFrom.next()) {
+                vector<vector<u32string>> regexMatchResultFrom =
+                    pFrom.regexSearch(regexSearchOfFromdoc);
+                vector<u32string> vectorU32string =
+                    duckx::reshapeVvToV(regexMatchResultFrom);
+                for (auto i : vectorU32string) {
+                    regexResult.append(duckx::to_utf8(i));
+                }
+            }
+            pTo.next().runs().set_text(regexResult);
+            // cout << trs << endl; //.runs().set_text(regexResult);
+        }
+    }
+    return;
 }
