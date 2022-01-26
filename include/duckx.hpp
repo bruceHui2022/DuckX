@@ -16,9 +16,15 @@
 #include <pugixml.hpp>
 #include <zip.h>
 
-// TODO: Use container-iterator design pattern!
+#define PCRE2_STATIC
+#include <jpcre2.hpp>
 
-namespace duckx {
+typedef jpcre2::select<char32_t> jpu;
+
+// TODO: Use container-iterator design pattern!
+char *Utf8ToGBK(const char *strUtf8);
+
+    namespace duckx {
 // Run contains runs in a paragraph
 class Run {
   private:
@@ -60,6 +66,9 @@ class Paragraph {
     std::string getFont(pugi::xml_node fontNode);
     std::string getText(pugi::xml_node Node);
     void merge();
+    std::vector<std::vector<std::u32string>>
+    duckx::Paragraph::regexSearch(std::u32string regexU32String);
+
     void set_parent(pugi::xml_node);
     void set_current(pugi::xml_node);
 
@@ -156,6 +165,17 @@ class Document {
     Paragraph &paragraphs();
     Table &tables();
 };
+char *Utf8ToGBK(const char *strUtf8);
+std::string to_utf8(std::u32string str32);
+std::u32string to_utf32(std::string str);
+void printU32String(std::u32string u32Str);
+std::vector<std::u32string>
+reshapeVvToV(std::vector<std::vector<std::u32string>> Vv);
+void searchInFromdoocxAndPasteInTodocx(duckx::Document &docFrom,
+                                       duckx::Document &docTo,
+                                       std::u32string regexSearchOfTodoc,
+                                       std::u32string regexSearchOfFromdoc);
+
 } // namespace duckx
 
 #endif
