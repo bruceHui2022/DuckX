@@ -169,6 +169,8 @@ char *Utf8ToGBK(const char *strUtf8);
 std::string to_utf8(std::u32string str32);
 std::u32string to_utf32(std::string str);
 void printU32String(std::u32string u32Str);
+std::vector<std::u32string>
+reshapeVvToV(std::vector<std::vector<std::u32string>> Vv);
 } // namespace duckx
 
 #endif

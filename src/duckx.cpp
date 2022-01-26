@@ -232,6 +232,17 @@ std::vector<std::vector<std::u32string>> duckx::Paragraph::regexSearch(std::u32s
                        .match();
     return vec_num32;
 }
+
+std::vector<std::u32string> duckx::reshapeVvToV(std::vector<std::vector<std::u32string>> Vv) {
+    std::vector<std::u32string> u32VectorStr;
+    for (auto  i :Vv) {
+        for (auto j : i) {
+            u32VectorStr.push_back(j);
+        }
+    }
+    return u32VectorStr;
+}
+
 void duckx::Paragraph::set_parent(pugi::xml_node node) {
     this->parent = node;
     this->current = this->parent.child("w:p");
