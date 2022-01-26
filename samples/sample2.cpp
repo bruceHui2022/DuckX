@@ -2,11 +2,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "copyFile.hpp"
 using namespace std;
 
 
 int main() {
-
+    CopyFile("from2.docx ",
+        "from.docx");
     duckx::Document doc("from.docx");
     doc.open();
 
@@ -17,7 +19,6 @@ int main() {
         cout << "\n" << endl;
     }
 
-    
 
     std::u32string testStr = U"Ò»¶þÈý";
     cout << "size:  " << testStr.size() << endl;

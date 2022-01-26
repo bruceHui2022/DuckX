@@ -20,8 +20,11 @@ set(HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/duckx.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/duckxiterator.hpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/pcre2.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/include/jpcre2.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/copyFile.hpp"
+
             )
-set(SOURCES src/duckx.cpp)
+set(SOURCES "src/duckx.cpp"
+            "src/copyFile.cpp")
 
 set(THIRD_PARTY_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/pugixml/pugixml.hpp"
                         "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/pugixml/pugiconfig.hpp"
@@ -36,7 +39,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include"
 if(BUILD_SHARED_LIBS)
     add_library(duckx SHARED ${SOURCES} ${THIRD_PARTY_SRC})
 else()
-    add_library(duckx STATIC ${SOURCES} ${THIRD_PARTY_SRC} "include/pcre2.h")
+    add_library(duckx STATIC ${SOURCES} ${THIRD_PARTY_SRC})
 endif()
 
 add_library(duckx::duckx ALIAS duckx)
